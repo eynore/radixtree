@@ -29,7 +29,7 @@ func New() *Tree {
 
 func (tree *Tree) Lookup(key string) (value interface{}, ok bool) {
 	if node, ok, _ := tree.lookup(key); ok {
-		return node.value, true
+		return node.value, node.hasValue
 	}
 	return
 }
@@ -49,13 +49,14 @@ loop:
 		}
 		break
 	}
-	return node, index == l && node.hasValue, index
+	return node, index == l && node != tree.root, index
 }
 
 func (tree *Tree) Insert(key string, value interface{}) {
 	node, ok, index := tree.lookup(key)
 	if ok {
 		node.value = value
+		node.hasValue = true
 		return
 	}
 	l := len(key) - index
@@ -74,14 +75,13 @@ func (tree *Tree) Insert(key string, value interface{}) {
 		}
 		i--
 		if i > 0 {
-			if l > index+i {
-				index += i
-				node = edge.node
-				break
-			}
-			edge.label = key[index:]
+			edge.label = label[:i]
 			newEdge := &Edge{edge.node, label[i:]}
-			edge.node = &Node{value, true, []*Edge{newEdge}}
+			if l > index+i {
+				edge.node = &Node{edges: []*Edge{newEdge, &Edge{&Node{value, true, nil}, key[index+i:]}}}
+			} else {
+				edge.node = &Node{value, true, []*Edge{newEdge}}
+			}
 			return
 		}
 	}
