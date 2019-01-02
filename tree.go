@@ -77,8 +77,9 @@ func (tree *Tree) Insert(key string, value interface{}) {
 		if i > 0 {
 			edge.label = label[:i]
 			newEdge := &Edge{edge.node, label[i:]}
-			if l > index+i {
-				edge.node = &Node{edges: []*Edge{newEdge, &Edge{&Node{value, true, nil}, key[index+i:]}}}
+			index += i
+			if l > index {
+				edge.node = &Node{edges: []*Edge{newEdge, &Edge{&Node{value, true, nil}, key[index:]}}}
 			} else {
 				edge.node = &Node{value, true, []*Edge{newEdge}}
 			}
