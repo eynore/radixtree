@@ -1,6 +1,9 @@
 package radixtree
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestLookup(t *testing.T) {
 	tree := New()
@@ -38,4 +41,30 @@ func TestLookup(t *testing.T) {
 			t.Errorf("Lookup(%q) = %v, %v", test, got, ok)
 		}
 	}
+}
+
+func ExampleTree() {
+	tree := New()
+
+	tests := []struct {
+		key   string
+		value string
+	}{
+		{"tony", "1"},
+		{"tonyx", "2"},
+		{"tonyxx", "3"},
+		{"tonyxy", "4"},
+		{"to", "5"},
+		{"tox", "6"},
+		{"toy", "7"},
+		{"xoy", "8"},
+		{"abc", "9"},
+		{"abd", "10"},
+	}
+	for _, test := range tests {
+		tree.Insert(test.key, test.value)
+	}
+
+	fmt.Println(tree)
+	// Output:
 }

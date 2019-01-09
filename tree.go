@@ -89,3 +89,79 @@ func (tree *Tree) Insert(key string, value interface{}) {
 	node.edges = append(node.edges, &Edge{&Node{value, true, nil}, key[index:]})
 
 }
+
+func (node *Node) leafNum() (n int) {
+	if node.isLeaf() {
+		return 0
+	}
+
+	for _, edge := range node.edges {
+		if edge.node.isLeaf() {
+			n++
+		} else {
+			n += edge.node.leafNum()
+		}
+	}
+	return n
+}
+
+// ------------- String --------------
+
+const labelWidth = 4
+const nodeMargin = 2
+
+type PNode struct {
+	children []*Edge
+	x        int
+}
+
+func (tree *Tree) String() (str string) {
+	arr := []*PNode{&PNode{tree.root.edges, 0}}
+
+	for len(arr) > 0 {
+		var next []*PNode
+		var line string
+		for _, pnode := range arr {
+			line += getN(pnode.x-len(line), " ")
+			for _, edge := range pnode.children {
+				node := edge.node
+				x := len(line)
+				if !node.isLeaf() {
+					next = append(next, &PNode{node.edges, x})
+				}
+				width := getTreeWidth(node)
+				line += getN(int(width/2)-labelWidth/2, " ")
+				line += getLabel(edge.label)
+				line += getN(x+width-len(line)+nodeMargin, " ")
+			}
+			line = line[:len(line)-2]
+			line += "|"
+		}
+
+		str += line[:len(line)-1] + "\n"
+		arr = next
+	}
+	return
+}
+
+func getN(n int, c string) (str string) {
+	for i := 0; i < n; i++ {
+		str += c
+	}
+	return
+}
+func getLabel(s string) string {
+	l := len(s)
+	if l > labelWidth {
+		return s[:labelWidth]
+	}
+	return s + getN(labelWidth-l, " ")
+
+}
+func getTreeWidth(node *Node) int {
+	n := node.leafNum()
+	if n <= 1 {
+		return labelWidth
+	}
+	return n*labelWidth + (n-1)*nodeMargin
+}
